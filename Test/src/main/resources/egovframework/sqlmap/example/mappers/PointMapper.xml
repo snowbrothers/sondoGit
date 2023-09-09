@@ -186,5 +186,9 @@
 	  	select * from admin
 	  	where id = #{id} and pw = #{pw}
 	  </select>
+	  
+	  <insert id="addCar">
+	  	insert into car (car_num, car_type) values (#{car_num}, #{car_type})
+	  </insert>
 
 </mapper>

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.egovframe.rte.psl.dataaccess.mapper.Mapper;
 
 import egovframework.ddan.service.MemberVo;
+import egovframework.ddan.vo.CarVo;
 import egovframework.ddan.vo.CleanVo;
 import egovframework.ddan.vo.CsvVO;
 import egovframework.ddan.vo.LocationVo;
@@ -35,4 +36,6 @@ public interface PointMapper {
 	public List<PointsVo> goLive();
 
 	public MemberVo login(MemberVo member);
+
+	public int addCar(CarVo carVo);
 }

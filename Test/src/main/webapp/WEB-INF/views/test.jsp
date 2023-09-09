@@ -225,8 +225,13 @@ ul{
 
 #close{
 	border: none;
+    position: absolute;
+    margin-left: 300px;
+    font-size: 13px;
+    color: #00000091;
     background-color: transparent;
-    
+    margin-top: 11px;
+    display: none;
 }
 
 #hybrid.on{
@@ -282,7 +287,7 @@ ul{
 } 
 
 
-
+ 
 /* 지도 종류 */
 
 .tbl{
@@ -527,6 +532,8 @@ input[type=file]::file-selector-button{
 
 </head>
 <body>
+		
+		
 				
 		<div id="modal_login" class="newModal" style="display: none; width: 400px;">
             <div class="modal_title">로그인</div>
@@ -590,7 +597,7 @@ input[type=file]::file-selector-button{
 		
 		<table class="tbl" id="tbl_carlist">
 		  <tr>
-		    <th rowspan="3" class="tbl_carlist_title tbl_noSelect">차량</th>
+		    <th rowspan="5" class="tbl_carlist_title tbl_noSelect">차량</th>
 		    <td class="tbl_carlist_content carbtnList" id="btn_car_0" data-car-num="${pList[0].car_num}" >${pList[0].car_num}</td>
 		  </tr>
 		  <c:forEach begin="1" items="${pList}" var="point" varStatus="loop">
@@ -603,7 +610,7 @@ input[type=file]::file-selector-button{
 		
 		
 		<!-- 달력 -->
-		
+			<button id='close' onclick='close_calendar()'>접기</button>
 			<div id="selectedCar_info" style="display: none;">
 				
 				<!--  <span id="btn_chart" data-bs-toggle="modal" data-bs-target="#exampleModal">통계보기 &raquo;</span> -->
@@ -747,7 +754,7 @@ input[type=file]::file-selector-button{
     	<!-- 차량추가 모달 -->
 	    <div id="modal_addCar" class="newModal" style="display: none">
 	            <div class="modal_title">차량 추가</div>
-	            <form name="form_addCar" action="/addCar">
+	            <form id="form_addCar" name="form_addCar" action="/addCar">
 	               <div class="modal_body">
 	                  <span class="info"><i class="fa-solid fa-circle-info"></i> 차량번호를 입력하세요.</span>
 	                  <input type="text" name="car_num" required>
@@ -860,9 +867,16 @@ input[type=file]::file-selector-button{
   			                  
    <script>
    
+   var close = document.querySelector('#close'); // 접기버튼선택
    const input_id = document.querySelector('#id');
    const input_pw = document.querySelector('#pw'); 
    const btn_login = document.querySelector('#btn_login');
+   
+   function close_calendar(){
+	   var selectedCar_info = document.querySelector("#selectedCar_info");
+	   selectedCar_info.style.display = "none";
+	   close.style.display = "none";
+   }
    
    input_id.addEventListener("keydown", function (event) {
 	    if (event.key === "Enter") {
@@ -885,9 +899,60 @@ input[type=file]::file-selector-button{
 	});
    
    
+// 차량추가
+   var btn_addCar = document.getElementById('form_addCar'); 
+   var modal_addCar = document.getElementById('modal_addCar');		
+		
+   
+	btn_addCar.addEventListener('submit', function (e) {
+       
+		var bg = document.querySelector("#bg");
+		
+		e.preventDefault(); // Prevent the default form submission
+
+       // Create a new FormData object from the form
+       const formData = new FormData(this);
+
+       // Use the fetch API to send the formData to the server
+       fetch('/addCar', {
+		    method: 'POST',
+		    headers: {
+		        'Content-Type': 'application/json'
+		    },
+		    body: JSON.stringify({
+		        car_num: formData.get('car_num'),
+		        car_type: formData.get('car_type')
+		    })
+		})
+       .then(response => {
+           if (response.ok) {
+        	   modal_addCar.style.display = "none";
+        	   bg.remove();
+        	   alert("차량추가가 완료되었습니다.")
+        	   
+        	   
+        	   location.reload(); // 페이지 새로고침
+               console.log('Data submitted successfully');
+           } else {
+               // Handle error response (e.g., show an error message)
+               console.error('Error submitting data');
+           }
+       })
+       .catch(error => {
+           // Handle network error
+           console.error('Network error:', error);
+       });
+   });
+   
    // new modal 창 
    
    	window.addEventListener("load", function(){
+   		
+	
+	
+	
+	//////////////////////////////////
+   		
    	
    	var member = document.querySelector("#member").value;	
    
@@ -926,6 +991,7 @@ function loginModal(id){
 
       // 모달 div 뒤 bg 레이어
      let bg = document.createElement("div");
+     bg.setAttribute("id", "bg");
       bg.setStyle({
           position: "fixed",
           zIndex: zIndex,
@@ -1016,6 +1082,7 @@ function showModal(id){
 
     // 모달 div 뒤 bg 레이어
    let bg = document.createElement("div");
+   bg.setAttribute("id", "bg");
     bg.setStyle({
         position: "fixed",
         zIndex: zIndex,
@@ -1066,9 +1133,11 @@ Element.prototype.setStyle = function(styles) {
 	// Add event listeners to all elements with class 'carbtnList'
 	   const carListElements = document.querySelectorAll(".carbtnList");
 	   const carInput = document.getElementById("car");
-	
+		var close = document.querySelector('#close');	
+	   
 	   carListElements.forEach((element) => {
 	     element.addEventListener("click", () => {
+	    	close.style.display = 'block';
 	       // Get the car number from the 'data-car-num' attribute
 	       const carNum = element.getAttribute("data-car-num");
 	
@@ -1118,7 +1187,7 @@ Element.prototype.setStyle = function(styles) {
    
    
    		/// 차트삭제
-   
+   		
 	   
 	   window.addEventListener("load", function() {
 		  
@@ -1145,43 +1214,10 @@ Element.prototype.setStyle = function(styles) {
 					
 					// 선택 가능한 날짜를 불러온다
 					getDateList(selectedCar_num.innerText.trim());
-					
-				    // 기존의 clean_o, clean_x, beginPoint, endPoint, course 레이어를 삭제한다
-				    /*  maps.getLayers().getArray()
-						  .filter(layer => layer.get('name')==='clean_o')
-						  .forEach(layer => maps.removeLayer(layer));    
-					    maps.getLayers().getArray()
-						  .filter(layer => layer.get('name')==='clean_x')
-						  .forEach(layer => maps.removeLayer(layer));
-					    maps.getLayers().getArray()
-						  .filter(layer => layer.get('name')==='start_point')
-						  .forEach(layer => maps.removeLayer(layer));
-					    maps.getLayers().getArray()
-						  .filter(layer => layer.get('name')==='end_point')
-						  .forEach(layer => maps.removeLayer(layer));
-					    maps.getLayers().getArray()
-						  .filter(layer => layer.get('name')==='clean_route')
-						  .forEach(layer => maps.removeLayer(layer));
-				    
-					    // 줌아웃하고 중심 좌표를 이동한다
-					    maps.getView().animate({
-					        center: ol.proj.transform([127.1775537, 37.2410864], 'EPSG:4326', 'EPSG:900913'),
-					        zoom: 11.5,
-					        duration: 800
-					    }); 					    
-					    
-					// 기존의 운행시간, 청소비율을 삭제한다
-					clean_time.innerText = "";
-					clean_ratio.innerText = "";	 */		
-
-				   
+	
 				})
 			}
-		   
-		   
-
-		   	
-		   
+		   	   
 		   
 		   // 맵 & 통계 화면 변경.
 		   var changeBtn = document.getElementById("changeBtn");
@@ -1260,8 +1296,8 @@ Element.prototype.setStyle = function(styles) {
 			            data: map.cleanTime,
 			            barThickness: 40,
 			            borderWidth: 1,
-			            backgroundColor: 'cadetblue', // Change background color
-			            borderColor: 'cadetblue' // Change border color
+			            backgroundColor: ['cadetblue','cadetblue','cadetblue'], // Change background color
+			            borderColor: ['cadetblue','cadetblue','cadetblue'] // Change border color
 			        }]
 			    },
 			    options: {
@@ -1286,23 +1322,30 @@ Element.prototype.setStyle = function(styles) {
 		  	    
 		  	    
 		  	
+		  	  
+		  	
 
 		  	const canvas = chart.canvas;
 
 		  	canvas.addEventListener('click', function (event) {
-		  	  
+		  		
+		  		
+		  		/* chart.data.datasets[0].backgroundColor = 'cadetblue';
+		  		chart.update();*/
 		  		var my = document.querySelector("#my2");
 		  		
 		  		my.innerHTML ='<canvas id="myDonutChart" width="400" height="500"></canvas>';
 		  		
 		  		 
 		  		const bar = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true });
-
+				
+		  		
 		  	  if (bar.length > 0) {
 		  	    // Get the index of the clicked bar
 		  	    const index = bar[0].index;
-
+				
 		  	    // Now you can access the corresponding data point in your map
+		  	    // 순서대로 청소비율을 불러오기때문에 .. index 로 접근 가능
 		  	    const drivingRatio = map.cleanRatio[index];
 		  	  	var drivingDate = document.querySelector('#drivingDate');
 		  	  	
@@ -1313,16 +1356,21 @@ Element.prototype.setStyle = function(styles) {
 		  	    console.log('Clicked bar index:', index);
 		  	    console.log('Corresponding drivingRatio:', drivingRatio);
 		  	    
-		  	  	// Get the selected bar element
-		        const selectedBar = chart.getDatasetMeta(0).data[index];
-
-		        // Change the background color of the selected bar
-		        selectedBar.backgroundColor = 'red'; // 원하는 배경색으로 변경
-		        
-		        chart.update();
-		  	    
-		  	    
-		  	    
+			  	 // var dataset = chart.data.datasets[0]; // Assuming it's the first dataset
+			  	 var dataset = chart.data.datasets.backgroundColor; 
+			  	 var clickData = chart.data.labels;
+			  	  
+			  		dataset = 'red';
+			  	  
+			  		//chart.data.datasets[0].backgroundColor = 'red';
+  		
+			  		chart.data.datasets[0].backgroundColor[index] = dataset;
+			  	 
+			  		/* dataset.backgroundColor[index] = 'red'; // 원하는 배경색으로 변경
+			      dataset.borderColor[index] = 'red'; */
+			     	
+			      chart.update();
+			        	    
 		  	  const totalHours = 100; // Total hours (assuming 24 hours in a day)
 
 		        // Calculate non-driving time as the remaining hours
@@ -1376,7 +1424,7 @@ Element.prototype.setStyle = function(styles) {
 		  	  }
 		  	});
 		  	    
-		  	    
+		  	
 		  	  
 		  		// 청소 비율 chart
 		  	
@@ -1668,184 +1716,6 @@ Element.prototype.setStyle = function(styles) {
             serverType: 'geoserver',
         })
      })
-
-	 //
-	 
-	/*  function addCleanLayer() {
-		 
-		 var mapView = maps.getView();
-		 var targetZoom = 11;
-		 var targetCenter = ol.proj.transform([127.1775537, 37.2410864], 'EPSG:4326', 'EPSG:3857');
-		 // var targetCenter = ol.proj.transform([127.0797171000000000, 37.2953763200000000], 'EPSG:4326', 'EPSG:900913');
-		 var animationDuration = 2000; // Animation duration in milliseconds
-		 
-		 
-		 
-		 // Store the value of the selected date in the date variable.
-		  var date = document.querySelector('#currentDate').value;
-		  var car_num = document.querySelector('#car').value;
-		  var encodedCarNum = encodeURIComponent(car_num);
-		  console.log(encodedCarNum);
-			
-		  // 레이어 삭제
-		  maps.getLayers().getArray()
-			  .filter(layer => layer.get('name') === 'clean_x' || layer.get('name') === 'clean_o' || layer.get('name') === 'start_point' || layer.get('name') === 'end_point' || layer.get('name') === 'clean_route')
-			  .forEach(layer => maps.removeLayer(layer));
-		  
-		  // Create an object to send as data in the fetch request.
-		  var obj = {
-		    'car_num': car_num,
-		    'date': date
-		  }
-
-		  var clean_o = new ol.layer.Tile({
-			 name : 'clean_o',
-			 source: new ol.source.TileWMS({
-		      url: 'http://localhost:8000/geoserver/opengis/wms',
-		      params: {
-		        'layers': 'opengis:Clean_O',
-		        'tiled': 'true',
-		        'VIEWPARAMS': 'date:'+date+';car_num:'+ car_num
-		      },
-		      serverType: 'geoserver'
-		    })
-		  	
-		  })
-
-		  var clean_x = new ol.layer.Tile({
-			name : 'clean_x',
-			source: new ol.source.TileWMS({
-		      url: 'http://localhost:8000/geoserver/opengis/wms',
-		      params: {
-		        'layers': 'opengis:Clean_X',
-		        'tiled': 'true',
-		        'VIEWPARAMS': 'date:'+date+';car_num:'+car_num
-		      },
-		      serverType: 'geoserver',
-		      
-		    })
-		  	  
-		  })
-		  
-		  //시작
-		  var start_point = new ol.layer.Tile({
-			name : 'start_point',
-			source: new ol.source.TileWMS({
-		      url: 'http://localhost:8000/geoserver/opengis/wms',
-		      params: {
-		        'layers': 'opengis:Start_Point',
-		        'tiled': 'true',
-		        'VIEWPARAMS': 'date:'+date
-		      },
-		      serverType: 'geoserver',
-		      
-		    })
-		  	  
-		  })
-		  
-		  
-		  // 끝
-		  
-		  var end_point = new ol.layer.Tile({
-			name : 'end_point',
-			source: new ol.source.TileWMS({
-		      url: 'http://localhost:8000/geoserver/opengis/wms',
-		      params: {
-		        'layers': 'opengis:End_Point',
-		        'tiled': 'true',
-		        'VIEWPARAMS': 'date:'+date
-		      },
-		      serverType: 'geoserver',
-		      
-		    })
-		  	  
-		  })
-		  
-		  // 청소 경로 (라인)
-		  
-		  var clean_route = new ol.layer.Tile({
-				name : 'clean_route',
-				source: new ol.source.TileWMS({
-			      url: 'http://localhost:8000/geoserver/opengis/wms',
-			      params: {
-			        'layers': 'opengis:Clean_Line',
-			        'tiled': 'true',
-			        'VIEWPARAMS': 'date:'+ date
-			      },
-			      serverType: 'geoserver',
-			      
-			    })
-			  	  
-			  })
-		 
-
-		  fetchPost('/clean', obj)
-		  
-		    .then(map => {
-		      // If there is data, add new layers
-		      if (map.result == 'Yes Data') {
-		        console.log(map.vo);
-		        
-		        maps.addLayer(clean_route);
-		        maps.addLayer(clean_o);
-		        maps.addLayer(clean_x);		        
-		        maps.addLayer(start_point);
-		        maps.addLayer(end_point);
-		        
-		        var lon = map.vo.lon;
-		        console.log("==============",typeof lon);
-		        var llon = parseFloat(lon)
-		        console.log("==============",typeof llon);
-		        var lat = map.vo.lat;
-		        var llat = parseFloat(lat);
-		        targetZoom = 14;
-				targetCenter = ol.proj.transform([llon, llat], 'EPSG:4326', 'EPSG:3857');
-		        
-
-	            mapView.animate({
-					  zoom: targetZoom,
-					  center: targetCenter,
-					  duration: animationDuration, // Animation duration
-					  easing: ol.easing.easeOut // Easing function (you can customize this)
-					});
-	            
-	            
-	            console.log(clean_o.getSource()); // 소스 전체 정보 확인
-	            console.log(clean_o.getSource().getParams());
-		        
-		        var resbox = document.querySelector('#resbox');
-		        
-		        
-		        const text = '<p>운행 시간 : <b>'+map.vo.time+'</b></p>'
-                    		+'<p>청소 비율 : <b>'+map.vo.ratio+'%</b></p>';
-                    		
-				resbox.innerHTML = text;
-				
-		     
-		      } else {
-		       	
-	    	  maps.getLayers().getArray()
-			  .filter(layer => layer.get('name') === 'clean_x' || layer.get('name') === 'clean_o' || layer.get('name') === 'start_point' || layer.get('name') === 'end_point' || layer.get('name') === 'clean_route')
-			  .forEach(layer => maps.removeLayer(layer));		    	  
-		    	
-	    	  console.log(map.result);
-		        var resbox = document.querySelector('#resbox');
-		        const text = '데이터가 없습니다.'
-		        resbox.innerHTML = text;
-		        
-		        mapView.animate({
-					  zoom: targetZoom,
-					  center: targetCenter,
-					  duration: animationDuration, // Animation duration
-					  easing: ol.easing.easeOut // Easing function (you can customize this)
-					});
-		        
-		        /* mapView.setZoom(11);
-		        mapView.setCenter(newCenter); 
-		        
-		      }
-		    })
-		} */
 	 
      maps.addLayer(boundary);
 		
@@ -2307,7 +2177,19 @@ Element.prototype.setStyle = function(styles) {
 	   				clearInterval(intervalId);
 			   				
 			   			}); */
-			   	
+			   			
+			   			var mapo = new ol.layer.Tile({
+					    	name : 'clean_route',
+							source: new ol.source.TileWMS({
+						      url: 'http://localhost:8000/geoserver/opengis/wms',
+						      params: {
+						        'layers': 'opengis:mapo',
+						        'tiled': 'true'
+						      },
+						      serverType: 'geoserver',
+						      
+						    })
+					    });			   	
 			   			
 			   		function goLiveFunction(){
 			   				
@@ -2328,7 +2210,7 @@ Element.prototype.setStyle = function(styles) {
 									      serverType: 'geoserver'
 									    })
 								    });
-			            		   
+				               		
 				               
 				               	maps.addLayer(live);
 				               	
@@ -2354,6 +2236,7 @@ Element.prototype.setStyle = function(styles) {
 		               var goStop = document.querySelector('#goStop');
 	               
 	               goLive.addEventListener("click", () => {
+	            	   	maps.addLayer(mapo);
 	            	   
 	            		 maps.getView().animate({
 		    		            center: ol.proj.transform([126.944794, 37.556593], 'EPSG:4326', 'EPSG:900913'),

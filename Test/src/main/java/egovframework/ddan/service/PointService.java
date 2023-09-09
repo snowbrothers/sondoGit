@@ -3,6 +3,7 @@ package egovframework.ddan.service;
 import java.util.List;
 import java.util.Map;
 
+import egovframework.ddan.vo.CarVo;
 import egovframework.ddan.vo.CleanVo;
 import egovframework.ddan.vo.CsvVO;
 import egovframework.ddan.vo.LocationVo;
@@ -31,4 +32,6 @@ public interface PointService {
 	public List<PointsVo> goLive();
 
 	public MemberVo login(MemberVo member);
+
+	public int addCar(CarVo carVo);
 }

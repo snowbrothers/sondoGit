@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import egovframework.ddan.mapper.PointMapper;
+import egovframework.ddan.vo.CarVo;
 import egovframework.ddan.vo.CleanVo;
 import egovframework.ddan.vo.CsvVO;
 import egovframework.ddan.vo.LocationVo;
@@ -98,6 +99,12 @@ public class PointServiceImpl extends EgovAbstractServiceImpl implements PointSe
 	public MemberVo login(MemberVo member) {
 		// TODO Auto-generated method stub
 		return pMapper.login(member);
+	}
+
+	@Override
+	public int addCar(CarVo carVo) {
+		// TODO Auto-generated method stub
+		return pMapper.addCar(carVo);
 	}
 	
 	

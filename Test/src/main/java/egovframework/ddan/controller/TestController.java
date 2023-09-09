@@ -24,6 +24,7 @@ import egovframework.ddan.mapper.PointMapper;
 import egovframework.ddan.service.MemberService;
 import egovframework.ddan.service.MemberVo;
 import egovframework.ddan.service.PointService;
+import egovframework.ddan.vo.CarVo;
 import egovframework.ddan.vo.CleanVo;
 import egovframework.ddan.vo.PointsVo;
 
@@ -267,6 +268,39 @@ public class TestController {
 		return map;
 	}
 
+	
+	
+	@PostMapping("/addCar")
+	public @ResponseBody String addCar(@RequestBody CarVo carVo) {
+		
+		String result = "";
+		
+		System.out.println("차량추가 테스트 ============================================");
+		
+		try {
+			
+			
+			System.out.println(carVo);
+			
+			int res = pService.addCar(carVo);
+			
+			System.out.println(res + " : ========================================");
+
+			if(res > 0) {
+				
+				result = "success";
+			}else {
+				
+				result = "fails";
+			}
+			
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		
+		
+		return result;
+	}
 	
 
 }
