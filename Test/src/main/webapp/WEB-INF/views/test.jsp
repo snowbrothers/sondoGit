@@ -805,7 +805,7 @@ input[type=file]::file-selector-button{
             
                <div class="modal_body" style="display: flex;">
                 <div id="car_info">
-                	<span id="car_info_span" style="border-bottom: 2px solid;">차량정보 : </span><br>                	                	
+                	<span id="car_info_span" style="border-bottom: 2px solid #2b272761;">차량정보 : </span><br>                	                	
                 </div>  	
                   	<div id="rightBox">
 	         		 <div id="my1">
@@ -1287,89 +1287,62 @@ Element.prototype.setStyle = function(styles) {
 		  	    //monthRatio.innerHTML = ''+map.monthData.ratio+''
 		  	  	//monthTime.innerHTML = ''+map.monthData.time+''
 		  	    
-		  	  const chart = new Chart(ctx, {
-			    type: 'bar',
-			    data: {
-			        labels: map.date,
-			        datasets: [{
-			            label: '청소시간 (분)',
-			            data: map.cleanTime,
-			            barThickness: 40,
-			            borderWidth: 1,
-			            backgroundColor: ['cadetblue','cadetblue','cadetblue'], // Change background color
-			            borderColor: ['cadetblue','cadetblue','cadetblue'] // Change border color
-			        }]
-			    },
-			    options: {
-			        layout: {
-			            padding: {
-			                left: 10,
-			                right: 10,
-			                top: 10,
-			                bottom: 10
-			            }
-			        },
-			        scales: {
-			            y: {
-			                beginAtZero: true
-			            }
-			        },
-			        responsive: false,
-			        width: 400,
-			        height: 300
-			    }
-			});
-		  	    
-		  	    
-		  	
-		  	  
-		  	
+		  	 const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: map.date,
+        datasets: [{
+            label: '청소시간 (분)',
+            data: map.cleanTime,
+            barThickness: 40,
+            borderWidth: 3,
+            backgroundColor: Array(map.date.length).fill('cadetblue'), // Initialize with cadetblue color
+            borderColor: Array(map.date.length).fill('cadetblue'), // Initialize with cadetblue color
+        }]
+    },
+    options: {
+        layout: {
+            padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: false,
+        width: 400,
+        height: 300
+    }
+});
 
-		  	const canvas = chart.canvas;
+const canvas = chart.canvas;
 
-		  	canvas.addEventListener('click', function (event) {
-		  		
-		  		
-		  		/* chart.data.datasets[0].backgroundColor = 'cadetblue';
-		  		chart.update();*/
-		  		var my = document.querySelector("#my2");
-		  		
-		  		my.innerHTML ='<canvas id="myDonutChart" width="400" height="500"></canvas>';
-		  		
-		  		 
-		  		const bar = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true });
-				
-		  		
-		  	  if (bar.length > 0) {
-		  	    // Get the index of the clicked bar
-		  	    const index = bar[0].index;
-				
-		  	    // Now you can access the corresponding data point in your map
-		  	    // 순서대로 청소비율을 불러오기때문에 .. index 로 접근 가능
-		  	    const drivingRatio = map.cleanRatio[index];
-		  	  	var drivingDate = document.querySelector('#drivingDate');
-		  	  	
-		  	  	drivingDate.innerHTML = '운행일자 : ' + map.date[index];
-		  	  	
-		  	  
-		  	    // Do something with drivingRatio based on the clicked bar
-		  	    console.log('Clicked bar index:', index);
-		  	    console.log('Corresponding drivingRatio:', drivingRatio);
-		  	    
-			  	 // var dataset = chart.data.datasets[0]; // Assuming it's the first dataset
-			  	 var dataset = chart.data.datasets.backgroundColor; 
-			  	 var clickData = chart.data.labels;
-			  	  
-			  		dataset = 'red';
-			  	  
-			  		//chart.data.datasets[0].backgroundColor = 'red';
-  		
-			  		chart.data.datasets[0].backgroundColor[index] = dataset;
-			  	 
-			  		/* dataset.backgroundColor[index] = 'red'; // 원하는 배경색으로 변경
-			      dataset.borderColor[index] = 'red'; */
-			     	
-			      chart.update();
+canvas.addEventListener('click', function (event) {
+    var my = document.querySelector("#my2");
+    my.innerHTML = '<canvas id="myDonutChart" width="400" height="500"></canvas>';
+
+    const bar = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true });
+
+    if (bar.length > 0) {
+        const index = bar[0].index;
+        const drivingRatio = map.cleanRatio[index];
+        var drivingDate = document.querySelector('#drivingDate');
+        drivingDate.innerHTML = '운행일자 : ' + map.date[index];
+
+        // Reset the color of all bars to cadetblue
+        chart.data.datasets[0].backgroundColor = Array(map.date.length).fill('cadetblue');
+        chart.data.datasets[0].borderColor = Array(map.date.length).fill('cadetblue');
+
+        // Set the color of the clicked bar to red
+        chart.data.datasets[0].backgroundColor[index] = '#ea8139';
+        chart.data.datasets[0].borderColor[index] = '#ea8139';
+
+        chart.update();
 			        	    
 		  	  const totalHours = 100; // Total hours (assuming 24 hours in a day)
 
